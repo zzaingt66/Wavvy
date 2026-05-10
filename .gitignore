@@ -1,5 +1,49 @@
-node_modules
+# ─── Dependencies ────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+
+# ─── Environment & secrets ───────────────────────────────────
 .env
-.agents
-.wrangler
-plans
+.env.*
+!.env.example
+
+# ─── Astro build output ──────────────────────────────────────
+dist/
+.astro/
+
+# ─── Cloudflare / Wrangler ───────────────────────────────────
+.wrangler/
+.dev.vars
+
+# ─── Drizzle generated files ─────────────────────────────────
+drizzle/
+
+# ─── OS & editor junk ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/settings.json
+
+# ─── Logs ────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── Testing & coverage ──────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Agent / planning (internal only) ────────────────────────
+.agents/
+plans/
+AGENTS.md
+skills-lock.json
+
+# ─── Temp & cache ────────────────────────────────────────────
+.cache/
+tmp/
+*.tmp
