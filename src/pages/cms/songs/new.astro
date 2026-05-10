@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import SongForm from "../../../components/cms/SongForm";
+import { listGenres } from "../../../actions/songs";
+
+const genres = await listGenres().catch(() => [
+  { id: 1, name: "Indie" },
+  { id: 2, name: "Alternative" },
+  { id: 3, name: "Electro Pop" }
+]);
+---
+
+<BaseLayout title="CMS - New Song">
+  <main class="mx-auto max-w-7xl px-4 py-8 md:px-8">
+    <header class="mb-6">
+      <p class="mb-2 inline-flex rounded-full border border-cyanv/35 bg-cyanv/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-cyanv">
+        Headless CMS
+      </p>
+      <h1 class="text-3xl font-bold text-slate-100">Publicar nueva canción</h1>
+      <p class="mt-2 text-sm text-slate-300">Editor SEO-first con autoguardado, preview SERP y validación en tiempo real.</p>
+    </header>
+
+    <SongForm mode="create" genres={genres} client:load />
+  </main>
+</BaseLayout>

@@ -1,0 +1,41 @@
+---
+import type { DateRange } from "../../types/dashboard";
+
+interface Props {
+  range: DateRange;
+}
+
+const { range } = Astro.props as Props;
+---
+
+<form class="glass-card mb-6 grid gap-4 p-4 md:grid-cols-[1fr_1fr_auto_auto]" method="GET" action="/dashboard">
+  <label class="flex flex-col gap-1 text-sm text-slate-300">
+    Desde
+    <input
+      class="rounded-lg border border-white/20 bg-night-900/70 px-3 py-2 text-slate-100 outline-none ring-cyanv/60 focus:ring"
+      type="date"
+      name="from"
+      value={range.from}
+      required
+    />
+  </label>
+  <label class="flex flex-col gap-1 text-sm text-slate-300">
+    Hasta
+    <input
+      class="rounded-lg border border-white/20 bg-night-900/70 px-3 py-2 text-slate-100 outline-none ring-cyanv/60 focus:ring"
+      type="date"
+      name="to"
+      value={range.to}
+      required
+    />
+  </label>
+  <button class="rounded-lg bg-cyanv px-4 py-2 font-semibold text-night-950" type="submit">
+    Aplicar
+  </button>
+  <a
+    class="rounded-lg border border-white/25 px-4 py-2 text-center text-slate-100"
+    href={`/api/export/csv?from=${range.from}&to=${range.to}`}
+  >
+    Export CSV
+  </a>
+</form>

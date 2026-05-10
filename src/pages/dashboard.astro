@@ -1,0 +1,66 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import DateFilters from "../components/dashboard/DateFilters.astro";
+import SeoSection from "../components/dashboard/SeoSection.astro";
+import MusicSection from "../components/dashboard/MusicSection.astro";
+import PublicationsSection from "../components/dashboard/PublicationsSection.astro";
+import { parseDateRange } from "../lib/dateRange";
+
+const range = parseDateRange(Astro.url);
+const sseEnabled = Astro.url.searchParams.get("live") === "1";
+---
+
+<BaseLayout title="Dashboard SEO + Music Analytics">
+  <main class="mx-auto max-w-7xl px-4 py-8 md:px-8">
+    <header class="mb-6">
+      <p class="mb-2 inline-flex rounded-full border border-cyanv/35 bg-cyanv/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-cyanv">
+        Vanguard Analytics
+      </p>
+      <h1 class="text-3xl font-bold text-slate-100 md:text-4xl">Dashboard analitico para musicos independientes</h1>
+      <p class="mt-2 max-w-3xl text-sm text-slate-300 md:text-base">
+        Monitorea SEO organico, rendimiento de reproducciones y estado de indexacion de publicaciones desde una vista centralizada.
+      </p>
+    </header>
+
+    <DateFilters range={range} />
+
+    <div class="space-y-8">
+      <SeoSection range={range} server:defer />
+      <MusicSection range={range} server:defer />
+      <PublicationsSection range={range} server:defer />
+    </div>
+
+    <footer class="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
+      <a class="rounded-md border border-white/20 px-3 py-2" href="/cms/songs/new">
+        Open CMS
+      </a>
+      <a class="rounded-md border border-white/20 px-3 py-2" href={`/dashboard/print?from=${range.from}&to=${range.to}`} target="_blank">
+        Export PDF
+      </a>
+      {!sseEnabled ? (
+        <a class="rounded-md border border-white/20 px-3 py-2" href={`/dashboard?from=${range.from}&to=${range.to}&live=1`}>
+          Activar tiempo real
+        </a>
+      ) : (
+        <span class="rounded-md border border-mintv/40 bg-mintv/10 px-3 py-2 text-mintv">Tiempo real activo (SSE)</span>
+      )}
+    </footer>
+  </main>
+
+  {sseEnabled ? (
+    <script is:inline>
+      {`
+        const search = new URLSearchParams(window.location.search);
+        const from = search.get("from");
+        const to = search.get("to");
+        const source = new EventSource('/api/dashboard/stream?from=' + from + '&to=' + to);
+        source.onmessage = () => {
+          window.location.reload();
+        };
+        source.onerror = () => {
+          source.close();
+        };
+      `}
+    </script>
+  ) : null}
+</BaseLayout>

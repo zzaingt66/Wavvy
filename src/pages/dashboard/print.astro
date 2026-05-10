@@ -1,0 +1,66 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { parseDateRange } from "../../lib/dateRange";
+import { getDashboardData } from "../../lib/queries";
+
+const range = parseDateRange(Astro.url);
+const data = await getDashboardData(range);
+
+const totalPlays = data.music.playsBySong.reduce((sum, row) => sum + row.playsRange, 0);
+const avgCtr =
+  data.seo.ctrByPage.length > 0
+    ? data.seo.ctrByPage.reduce((sum, row) => sum + row.ctr, 0) / data.seo.ctrByPage.length
+    : 0;
+---
+
+<BaseLayout title="Reporte PDF - Dashboard Musical">
+  <main class="mx-auto max-w-4xl px-4 py-8 text-slate-100">
+    <header class="mb-8 border-b border-white/20 pb-4">
+      <h1 class="text-3xl font-bold">Reporte SEO + Consumo musical</h1>
+      <p class="mt-2 text-sm text-slate-300">Periodo: {range.from} a {range.to}</p>
+    </header>
+
+    <section class="mb-6 grid gap-3 md:grid-cols-3">
+      <article class="glass-card p-4">
+        <p class="text-sm text-slate-300">Plays totales</p>
+        <p class="metric-value">{totalPlays}</p>
+      </article>
+      <article class="glass-card p-4">
+        <p class="text-sm text-slate-300">CTR promedio</p>
+        <p class="metric-value">{(avgCtr * 100).toFixed(2)}%</p>
+      </article>
+      <article class="glass-card p-4">
+        <p class="text-sm text-slate-300">Keywords Top 3</p>
+        <p class="metric-value">{data.seo.positions.top3}</p>
+      </article>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="mb-3 text-xl font-semibold">Top canciones por reproducciones</h2>
+      <div class="glass-card p-4">
+        <ol class="space-y-2 text-sm">
+          {data.music.playsBySong.slice(0, 10).map((row) => (
+            <li class="flex items-center justify-between border-b border-white/10 pb-2">
+              <span>{row.title}</span>
+              <span class="font-semibold">{row.playsRange}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-xl font-semibold">Estado de publicaciones</h2>
+      <div class="glass-card p-4">
+        <ul class="space-y-2 text-sm">
+          {data.publications.publications.map((row) => (
+            <li class="flex items-center justify-between border-b border-white/10 pb-2">
+              <span>{row.title}</span>
+              <span class="capitalize">{row.status}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

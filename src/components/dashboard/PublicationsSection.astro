@@ -1,0 +1,55 @@
+---
+import type { DateRange } from "../../types/dashboard";
+import { getPublicationPayload } from "../../lib/queries";
+
+interface Props {
+  range: DateRange;
+}
+
+const { range } = Astro.props as Props;
+const publicationData = await getPublicationPayload(range);
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold text-slate-100">Publicaciones</h2>
+
+  <article class="glass-card overflow-auto p-4">
+    <h3 class="mb-3 text-base font-semibold">Estado SEO por cancion</h3>
+    <table class="w-full min-w-[760px] text-sm">
+      <thead>
+        <tr class="text-left text-slate-400">
+          <th class="pb-2">Cancion</th>
+          <th class="pb-2">Indexacion</th>
+          <th class="pb-2">Keywords indexadas</th>
+          <th class="pb-2">Backlinks</th>
+          <th class="pb-2">Comentarios</th>
+          <th class="pb-2">Compartidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {publicationData.publications.map((row) => (
+          <tr class="border-t border-white/10">
+            <td class="py-2 text-slate-100">{row.title}</td>
+            <td class="py-2">
+              <span
+                class={`rounded-md px-2 py-1 text-xs font-medium ${
+                  row.status === "indexed"
+                    ? "bg-emerald-400/20 text-emerald-200"
+                    : row.status === "pending"
+                      ? "bg-amber-300/20 text-amber-100"
+                      : "bg-rose-300/20 text-rose-100"
+                }`}
+              >
+                {row.status}
+              </span>
+            </td>
+            <td class="py-2">{row.indexedKeywords}</td>
+            <td class="py-2">{row.backlinks}</td>
+            <td class="py-2">{row.comments}</td>
+            <td class="py-2">{row.shares}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </article>
+</section>

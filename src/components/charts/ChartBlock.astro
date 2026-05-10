@@ -1,0 +1,20 @@
+---
+import ChartCanvas from "./ChartCanvas";
+import type { ChartConfiguration } from "chart.js";
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  config: ChartConfiguration;
+}
+
+const { title, subtitle, config } = Astro.props as Props;
+---
+
+<section class="glass-card p-5">
+  <div class="mb-4 flex flex-col gap-1">
+    <h3 class="text-base font-semibold text-slate-100">{title}</h3>
+    {subtitle ? <p class="text-sm text-slate-300">{subtitle}</p> : null}
+  </div>
+  <ChartCanvas config={config} client:visible />
+</section>

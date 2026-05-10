@@ -1,0 +1,123 @@
+---
+import type { DateRange } from "../../types/dashboard";
+import { getMusicPayload } from "../../lib/queries";
+import ChartBlock from "../charts/ChartBlock.astro";
+
+interface Props {
+  range: DateRange;
+}
+
+const { range } = Astro.props as Props;
+const music = await getMusicPayload(range);
+
+const playsConfig = {
+  type: "bar",
+  data: {
+    labels: music.playsBySong.map((item) => item.title),
+    datasets: [
+      {
+        label: "Plays (rango)",
+        data: music.playsBySong.map((item) => item.playsRange),
+        backgroundColor: "rgba(0, 212, 255, 0.75)"
+      },
+      {
+        label: "Plays 30d",
+        data: music.playsBySong.map((item) => item.plays30d),
+        backgroundColor: "rgba(77, 242, 194, 0.55)"
+      }
+    ]
+  }
+};
+
+const sourcesConfig = {
+  type: "bar",
+  data: {
+    labels: music.trafficSources.map((item) => item.source),
+    datasets: [
+      {
+        label: "Plays por fuente",
+        data: music.trafficSources.map((item) => item.plays),
+        backgroundColor: ["#00d4ff", "#4df2c2", "#9cc8ff", "#5d7fff", "#77f0a8"]
+      }
+    ]
+  }
+};
+
+const heatmapConfig = {
+  type: "line",
+  data: {
+    labels: music.hourlyHeatmap.map((item) => `${item.hour}:00`),
+    datasets: [
+      {
+        label: "Plays por hora",
+        data: music.hourlyHeatmap.map((item) => item.plays),
+        borderColor: "#4df2c2",
+        backgroundColor: "rgba(77,242,194,0.18)",
+        fill: true,
+        tension: 0.3
+      }
+    ]
+  }
+};
+---
+
+<section class="space-y-4">
+  <h2 class="text-xl font-semibold text-slate-100">Consumo musical</h2>
+
+  <div class="grid gap-4 md:grid-cols-3">
+    <article class="glass-card p-4">
+      <p class="text-sm text-slate-300">Plays totales</p>
+      <p class="metric-value">{music.playsBySong.reduce((sum, row) => sum + row.playsRange, 0)}</p>
+      <p class="text-xs text-slate-400">Periodo seleccionado</p>
+    </article>
+    <article class="glass-card p-4">
+      <p class="text-sm text-slate-300">Tiempo escucha promedio</p>
+      <p class="metric-value">
+        {music.listeningQuality.length > 0
+          ? `${(music.listeningQuality.reduce((sum, row) => sum + row.avgListenSec, 0) / music.listeningQuality.length).toFixed(1)}s`
+          : "0s"}
+      </p>
+      <p class="text-xs text-slate-400">vs duracion total</p>
+    </article>
+    <article class="glass-card p-4">
+      <p class="text-sm text-slate-300">Tasa de completacion</p>
+      <p class="metric-value">
+        {music.listeningQuality.length > 0
+          ? `${(music.listeningQuality.reduce((sum, row) => sum + row.completionRate, 0) / music.listeningQuality.length * 100).toFixed(1)}%`
+          : "0.0%"}
+      </p>
+      <p class="text-xs text-slate-400">Media por cancion</p>
+    </article>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <ChartBlock title="Reproducciones por cancion" subtitle="Total y ventana 30d" config={playsConfig} />
+    <ChartBlock title="Fuentes de trafico" subtitle="Canales con mas plays" config={sourcesConfig} />
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <ChartBlock title="Mapa de calor (horario)" subtitle="Densidad de plays por hora" config={heatmapConfig} />
+
+    <article class="glass-card overflow-auto p-4">
+      <h3 class="mb-3 text-base font-semibold">Dispositivos y navegadores</h3>
+      <table class="w-full min-w-[420px] text-sm">
+        <thead>
+          <tr class="text-left text-slate-400">
+            <th class="pb-2">Dispositivo</th>
+            <th class="pb-2">Navegador</th>
+            <th class="pb-2">Plays</th>
+          </tr>
+        </thead>
+        <tbody>
+          {music.devicesBrowsers.map((row) => (
+            <tr class="border-t border-white/10">
+              <td class="py-2">{row.deviceType}</td>
+              <td class="py-2">{row.browser}</td>
+              <td class="py-2">{row.plays}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </article>
+  </div>
+</section>
