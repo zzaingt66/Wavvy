@@ -1,9 +1,9 @@
 import { Pool } from "pg";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.SUPABASE_URL ?? "";
 
 if (!connectionString) {
-  console.warn("DATABASE_URL is not set. Dashboard will use mock data.");
+  console.warn("SUPABASE_URL is not set. Dashboard will use mock data.");
 }
 
 export const pool = connectionString
@@ -19,6 +19,6 @@ export async function runQuery<T>(query: string, values: unknown[] = []): Promis
   if (!pool) {
     return [];
   }
-  const result = await pool.query<T>(query, values);
+  const result = await pool.query<T>(query, values
   return result.rows;
 }

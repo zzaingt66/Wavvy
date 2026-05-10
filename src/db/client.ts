@@ -3,13 +3,13 @@ import { Pool } from "pg";
 
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.SUPABASE_URL ?? "";
 
 let dbInstance: NodePgDatabase<typeof schema> | null = null;
 
 export function getDb(): NodePgDatabase<typeof schema> {
   if (!connectionString) {
-    throw new Error("DATABASE_URL is required for CMS operations.");
+    throw new Error("SUPABASE_URL is required for CMS operations.");
   }
 
   if (!dbInstance) {
